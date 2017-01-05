@@ -1,3 +1,6 @@
+.idea/
+.virtualenv/
+
 doc/_build/*
 *.pyc
 .*.swp

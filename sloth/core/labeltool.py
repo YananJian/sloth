@@ -353,6 +353,12 @@ class LabelTool(QObject):
             'class': 'image',
             'annotations': [],
         }
+
+        # load image to get width & height
+        im = self._container.loadImage(fname)
+        fileitem['w'] = im.shape[1]
+        fileitem['h'] = im.shape[0]
+
         return self._model._root.appendFileItem(fileitem)
 
     def addVideoFile(self, fname):
