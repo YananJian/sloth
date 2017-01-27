@@ -1,3 +1,4 @@
+import copy
 import os
 import fnmatch
 import time
@@ -118,7 +119,8 @@ class AnnotationContainer:
         """
         if not filename:
             filename = self.filename()
-        self.serializeToFile(filename, annotations)
+        annotationsToSave = self._convertAnnotationsFilenamesToPath(annotations, filename)
+        self.serializeToFile(filename, annotationsToSave)
         self._filename = filename
 
     def serializeToFile(self, filename, annotations):
@@ -143,6 +145,20 @@ class AnnotationContainer:
         else:
             fullpath = filename
         return fullpath
+
+    def _convertAnnotationsFilenamesToPath(self, annotations, filename):
+        """
+        Convert the filename of each annotation to be relative
+        to the directory of the given filename parameter.
+        For each annotation, create a copy so the changes
+        do not affect the objects being used by the UI.
+        """
+        annotationsToSave = []
+        for ann in annotations:
+            copiedAnn = copy.deepcopy(ann)
+            copiedAnn["filename"] = os.path.relpath(os.path.abspath(copiedAnn["filename"]), os.path.dirname(filename))
+            annotationsToSave.append(copiedAnn)
+        return annotationsToSave
 
     def loadImage(self, filename):
         """
