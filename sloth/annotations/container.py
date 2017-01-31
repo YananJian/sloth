@@ -99,6 +99,7 @@ class AnnotationContainer:
         self._filename = filename
         start = time.time()
         ann = self.parseFromFile(filename)
+        ann = self._convertSavedPathsToCurrentDir(ann, filename)
         diff = time.time() - start
         LOG.info("Loaded annotations from %s in %.2fs" % (filename, diff))
         return ann
@@ -159,6 +160,11 @@ class AnnotationContainer:
             copiedAnn["filename"] = os.path.relpath(os.path.abspath(copiedAnn["filename"]), os.path.dirname(filename))
             annotationsToSave.append(copiedAnn)
         return annotationsToSave
+
+    def _convertSavedPathsToCurrentDir(self, annotations, filename):
+        for ann in annotations:
+            ann["filename"] = os.path.normpath(os.path.join(os.path.dirname(filename), ann["filename"]))
+        return annotations
 
     def loadImage(self, filename):
         """
