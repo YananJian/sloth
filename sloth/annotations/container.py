@@ -99,7 +99,7 @@ class AnnotationContainer:
         self._filename = filename
         start = time.time()
         ann = self.parseFromFile(filename)
-        ann = self._convertSavedPathsToCurrentDir(ann, filename)
+        ann = self._convertAnnotationsToAbsPath(ann, filename)
         diff = time.time() - start
         LOG.info("Loaded annotations from %s in %.2fs" % (filename, diff))
         return ann
@@ -120,7 +120,7 @@ class AnnotationContainer:
         """
         if not filename:
             filename = self.filename()
-        annotationsToSave = self._convertAnnotationsFilenamesToPath(annotations, filename)
+        annotationsToSave = self._convertAnnotationsToRelativePath(annotations, filename)
         self.serializeToFile(filename, annotationsToSave)
         self._filename = filename
 
@@ -147,7 +147,7 @@ class AnnotationContainer:
             fullpath = filename
         return fullpath
 
-    def _convertAnnotationsFilenamesToPath(self, annotations, filename):
+    def _convertAnnotationsToRelativePath(self, annotations, filename):
         """
         Convert the filename of each annotation to be relative
         to the directory of the given filename parameter.
@@ -157,13 +157,16 @@ class AnnotationContainer:
         annotationsToSave = []
         for ann in annotations:
             copiedAnn = copy.deepcopy(ann)
-            copiedAnn["filename"] = os.path.relpath(os.path.abspath(copiedAnn["filename"]), os.path.dirname(filename))
+            copiedAnn["filename"] = os.path.relpath(copiedAnn["filename"], os.path.dirname(filename))
             annotationsToSave.append(copiedAnn)
         return annotationsToSave
 
-    def _convertSavedPathsToCurrentDir(self, annotations, filename):
+    def _convertAnnotationsToAbsPath(self, annotations, filename):
+        """
+        Convert the filename of each annotation to be absolute.
+        """
         for ann in annotations:
-            ann["filename"] = os.path.normpath(os.path.join(os.path.dirname(filename), ann["filename"]))
+            ann["filename"] = os.path.abspath(os.path.normpath(os.path.join(os.path.dirname(filename), ann["filename"])))
         return annotations
 
     def loadImage(self, filename):
