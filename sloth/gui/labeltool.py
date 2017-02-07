@@ -440,8 +440,9 @@ class MainWindow(QMainWindow):
 
             fname = str(fname)
 
-            if os.path.isabs(fname):
-                fname = os.path.relpath(fname, str(path))
+            ## Not enforcing paths relative to the current working directory anymore
+            # if os.path.isabs(fname):
+            #     fname = os.path.relpath(fname, str(path))
 
             for pattern in image_types:
                 if fnmatch.fnmatch(fname, pattern):
